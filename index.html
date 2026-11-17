@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Débora Costa — Product Designer</title>
+  <meta name="description" content="Portfólio de Débora Costa, Product Designer em formação na Apple Developer Academy PUCPR.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #28354d;
+      --blue: #4667bc;
+      --blue-light: #8597d9;
+      --paper: #f6f7fb;
+      --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+      --content: 1280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sf); background: var(--paper); color: var(--navy); -webkit-font-smoothing: antialiased; }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    .wrap { width: min(var(--content), 100% - 48px); margin-inline: auto; }
+    section { position: relative; min-height: 100vh; display: flex; align-items: center; padding: 120px 0; }
+
+    /* Navegação lateral fixa */
+    .side-nav { position: fixed; left: 62px; top: 198px; z-index: 20; display: flex; flex-direction: column; }
+    .side-nav a { font-weight: 600; font-size: 17px; line-height: 22px; letter-spacing: -0.43px; color: var(--blue-light); padding: 10px 16px; transition: color .2s; }
+    .side-nav a:hover, .side-nav a.active { color: var(--blue); }
+    body.on-dark .side-nav a { color: var(--blue-light); }
+    body.on-dark .side-nav a:hover, body.on-dark .side-nav a.active { color: var(--paper); }
+
+    /* Botões em pílula */
+    .pill { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 1000px; color: #fff; font-weight: 500; font-size: 17px; letter-spacing: -0.43px;
+      background: linear-gradient(180deg, #4061b5, #4b6cc0); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 14px rgba(70,103,188,.25); transition: transform .15s, box-shadow .15s; }
+    .pill:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px rgba(70,103,188,.35); }
+    .pill.lg { padding: 16px 20px; }
+    .pill.md { padding: 8px 12px; font-size: 15px; }
+
+    /* 1. Apresentação */
+    #inicio { justify-content: center; text-align: center; }
+    .socials { position: absolute; top: 99px; right: 80px; display: flex; gap: 8px; }
+    .hero { max-width: 1100px; padding-inline: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .hero h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(64px, 9vw, 150px); line-height: 1.06; letter-spacing: -0.02em; color: var(--navy); }
+    .hero p { font-family: "Open Sans", sans-serif; font-size: clamp(20px, 2vw, 32px); line-height: 1.28; letter-spacing: .4px; color: var(--blue); }
+
+    /* 2. Projetos */
+    .projects { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .card { display: flex; flex-direction: column; gap: 16px; }
+    .cover { border-radius: 20px; overflow: hidden; aspect-ratio: 621 / 435; background: #121212; }
+    .cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .card:hover .cover img { transform: scale(1.03); }
+    .card h3 { font-size: 34px; line-height: 41px; letter-spacing: .4px; font-weight: 700; }
+    .context { font-size: 22px; line-height: 28px; letter-spacing: -0.26px; color: var(--blue); margin-top: -4px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 4.67px; }
+    .tag { background: var(--blue); border: .5px solid var(--blue-light); color: var(--paper); border-radius: 8px; padding: 4px 10px; font-size: 17px; line-height: 22px; letter-spacing: -0.43px; }
+    .card .desc { font-size: 17px; line-height: 22px; letter-spacing: -0.43px; color: var(--blue); }
+    .actions { display: flex; justify-content: flex-end; gap: 16px; }
+    .outline { font-family: "Inter", sans-serif; font-weight: 500; font-size: 16px; line-height: 1.3; color: var(--navy); border: 1px solid #000; border-radius: 20px; padding: 8px 16px; transition: background .2s, color .2s; white-space: nowrap; }
+    .outline:hover { background: var(--navy); color: var(--paper); border-color: var(--navy); }
+
+    /* 3. Sobre mim */
+    #sobre .wrap { display: flex; flex-direction: column; gap: 48px; }
+    .bio { display: flex; gap: 77px; align-items: center; }
+    .bio > img { width: 320px; height: 370px; object-fit: cover; border-radius: 20px; flex-shrink: 0; }
+    .bio-text { display: flex; flex-direction: column; gap: 32px; align-items: flex-start; }
+    .bio-text h2 { font-size: 34px; line-height: 41px; letter-spacing: .4px; font-weight: 700; }
+    .bio-text p { font-size: 22px; line-height: 28px; letter-spacing: -0.26px; color: var(--blue); }
+    .bio-text p + p { margin-top: 0; }
+    .purpose { font-size: 28px; line-height: 34px; letter-spacing: .38px; text-align: center; color: var(--navy); }
+    .tools { position: relative; width: 100%; aspect-ratio: 1280 / 300; margin-top: 8px; }
+    .tools img { position: absolute; width: 9.22%; aspect-ratio: 118 / 121; border-radius: 16%; object-fit: fill; transform-origin: 0 0; transform: rotate(var(--r));
+      box-shadow: 0 6px 18px rgba(40,53,77,.12); transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+    .tools img:hover { transform: rotate(0deg) scale(1.12); z-index: 2; }
+
+    /* 4. Convite e rodapé */
+    #contato { background: var(--navy); color: var(--paper); flex-direction: column; justify-content: space-between; align-items: stretch; padding-bottom: 80px; }
+    .invite { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 16px; max-width: 995px; margin: 0 auto; padding: 120px 24px 160px; }
+    .invite h2 { font-size: clamp(36px, 4.4vw, 60px); line-height: 0.97; letter-spacing: .4px; font-weight: 700; }
+    .invite p { font-size: 22px; line-height: 28px; letter-spacing: -0.26px; }
+    footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
+    .credits { max-width: 605px; font-size: 17px; line-height: 22px; letter-spacing: -0.43px; }
+    .credits strong { font-weight: 600; display: block; margin-bottom: 4px; }
+    .credits q { quotes: none; }
+    .foot-cols { display: flex; }
+    .foot-col { width: 213px; display: flex; flex-direction: column; }
+    .foot-col h4 { font-size: 20px; line-height: 25px; font-weight: 600; color: var(--blue-light); padding: 10px 16px; }
+    .foot-col a { font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: -0.43px; color: var(--blue-light); padding: 10px 16px; transition: color .2s; }
+    .foot-col a:hover { color: var(--paper); }
+
+    /* Animação de entrada */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } }
+
+    /* Responsivo */
+    @media (max-width: 1500px) { .side-nav { display: none; } }
+    @media (max-width: 960px) {
+      section { min-height: auto; padding: 96px 0; }
+      #inicio { min-height: 100vh; }
+      .socials { top: 24px; right: 50%; transform: translateX(50%); flex-wrap: wrap; justify-content: center; width: max-content; max-width: calc(100% - 32px); }
+      .pill.lg { padding: 12px 16px; font-size: 15px; }
+      .projects { grid-template-columns: 1fr; gap: 64px; }
+      .bio { flex-direction: column; gap: 32px; align-items: flex-start; }
+      .bio > img { width: 100%; max-width: 320px; }
+      .bio-text p { font-size: 19px; line-height: 26px; }
+      .purpose { font-size: 22px; line-height: 28px; }
+      .tools { aspect-ratio: 1280 / 340; }
+      footer { flex-direction: column-reverse; align-items: flex-start; }
+      .foot-cols { margin-left: -16px; }
+      .foot-col { width: auto; min-width: 160px; }
+      .card h3 { font-size: 28px; line-height: 34px; }
+      .context { font-size: 19px; }
+      .tag { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <!--
+    LINKS: troque os "#" abaixo pelos seus endereços reais.
+    LinkedIn, Behance, GitHub, e-mail (mailto:), App Store, páginas dos cases e o PDF do currículo.
+  -->
+  <nav class="side-nav" aria-label="Navegação">
+    <a href="#inicio">Início</a>
+    <a href="#projetos">Projetos</a>
+    <a href="#sobre">Sobre mim</a>
+    <a href="#contato">Contato</a>
+  </nav>
+
+  <main>
+    <section id="inicio">
+      <div class="socials">
+        <a class="pill lg" href="#" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="pill lg" href="#">E-mail</a>
+        <a class="pill lg" href="#" target="_blank" rel="noopener">Behance</a>
+        <a class="pill lg" href="#" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="hero reveal">
+        <h1>Débora Costa</h1>
+        <p>Projeto experiências digitais com propósito, usando a inteligência artificial como alavanca para transformar ideias em soluções reais.</p>
+      </div>
+    </section>
+
+    <section id="projetos">
+      <div class="wrap projects">
+        <article class="card reveal">
+          <a class="cover" href="#" aria-label="Ver case Outa"><img src="assets/capa-outa.webp" alt="Capa do app Outa com telas do aplicativo" loading="lazy"></a>
+          <h3>Outa</h3>
+          <p class="context">Apple Developer Academy, 2026</p>
+          <div class="tags"><span class="tag">Produto</span><span class="tag">Resultados mensuráveis</span><span class="tag">Dashboard</span><span class="tag">Agentes</span><span class="tag">Prompts</span></div>
+          <p class="desc">Um aplicativo de registro de passeios casuais com diferencial em fornecer contexto pelas informações quantitativas coletadas durante o passeio.</p>
+          <div class="actions">
+            <a class="outline" href="#" target="_blank" rel="noopener">App Store&nbsp;&nbsp;↗</a>
+            <a class="outline" href="#">Ver case&nbsp;&nbsp;↗</a>
+          </div>
+        </article>
+        <article class="card reveal">
+          <a class="cover" href="#" aria-label="Ver case LembreMed"><img src="assets/capa-lembremed.webp" alt="Capa do app LembreMed com telas do aplicativo" loading="lazy"></a>
+          <h3>LembreMed</h3>
+          <p class="context">Apple Developer Academy, 2025</p>
+          <div class="tags"><span class="tag">Produto</span><span class="tag">Soluções em produção</span><span class="tag">API</span></div>
+          <p class="desc">Um aplicativo para acompanhar o uso dos seus medicamentos.</p>
+          <div class="actions">
+            <a class="outline" href="#">Ver case&nbsp;&nbsp;↗</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="sobre">
+      <div class="wrap">
+        <div class="bio reveal">
+          <img src="assets/debora.webp" alt="Retrato de Débora Costa" loading="lazy">
+          <div class="bio-text">
+            <h2>Olá, sou a Débora Costa!</h2>
+            <div>
+              <p>Sou Product Design em formação na Apple Developer Academy PUCPR, certificada em UX Design pelo Google. Projeto experiências digitais com propósito, usando a inteligência artificial como parceira do desenvolvimento.</p>
+              <p>Unindo meu repertório em Comunicação e Design Gráfico tenho uma visão de produto que acompanha todo o processo, da ideação à publicação. Já publiquei 4 apps na App Store, já integrei API do Gemini a um app construído do zero em uma semana, criei agentes de IA de conteúdo e estruturei design systems com Claude, skills e conectores para dar escala à produção de um projeto em equipe. Busco transformar IA em soluções reais.</p>
+            </div>
+            <a class="pill md" href="#" target="_blank" rel="noopener">Baixar currículo</a>
+          </div>
+        </div>
+        <p class="purpose reveal">Quero criar impactos positivos aproveitando todas as minhas habilidades e minha vontade de aprender</p>
+        <div class="tools reveal" aria-label="Ferramentas que uso">
+        <img src="assets/icon-illustrator.webp" alt="Adobe Illustrator" style="left:14.70%;top:56.13%;--r:-23.9deg">
+        <img src="assets/icon-xcode.webp" alt="Xcode" style="left:26.38%;top:51.15%;--r:-0.0deg">
+        <img src="assets/icon-elevenlabs.webp" alt="ElevenLabs" style="left:24.44%;top:0.00%;--r:18.2deg">
+        <img src="assets/icon-figma.webp" alt="Figma" style="left:35.57%;top:56.27%;--r:-23.9deg">
+        <img src="assets/icon-chatgpt.webp" alt="ChatGPT" style="left:47.24%;top:51.15%;--r:-0.0deg">
+        <img src="assets/icon-photoshop.webp" alt="Adobe Photoshop" style="left:58.05%;top:51.15%;--r:-0.0deg">
+        <img src="assets/icon-swift.webp" alt="Swift" style="left:45.31%;top:0.14%;--r:18.2deg">
+        <img src="assets/icon-indesign.webp" alt="Adobe InDesign" style="left:72.81%;top:55.85%;--r:-23.9deg">
+        <img src="assets/icon-canva.webp" alt="Canva" style="left:69.53%;top:8.03%;--r:40.0deg">
+        <img src="assets/icon-appstore.webp" alt="App Store Connect" style="left:53.79%;top:10.78%;--r:-9.1deg">
+        <img src="assets/icon-capcut.webp" alt="CapCut" style="left:84.43%;top:50.81%;--r:-0.0deg">
+        <img src="assets/icon-lightroom.webp" alt="Adobe Lightroom" style="left:91.23%;top:4.36%;--r:18.2deg">
+        <img src="assets/icon-claude.webp" alt="Claude" style="left:0.00%;top:52.53%;--r:-0.0deg">
+        <img src="assets/icon-gemini.webp" alt="Gemini" style="left:8.72%;top:8.03%;--r:18.2deg">
+        </div>
+      </div>
+    </section>
+
+    <section id="contato">
+      <div class="invite reveal">
+        <h2>Prompts, agentes e produtos construídos do zero. Agora quero construir junto com o iFood.</h2>
+        <p>Este portfólio foi preparado só pra você, com IA e muito amor.<br>#iFoodlover 🫶🏻</p>
+      </div>
+      <footer class="wrap">
+        <div class="credits">
+          <strong>2026 Débora Costa</strong>
+          <q>"Tudo o que fizerem, façam de todo o coração, como para o Senhor, e não para os homens, sabendo que receberão do Senhor a recompensa da herança, pois é a Cristo, o Senhor, a quem vocês servem.” Colossenses 3:23-24</q>
+        </div>
+        <div class="foot-cols">
+          <nav class="foot-col" aria-label="Navegação do rodapé">
+            <h4>Navegação</h4>
+            <a href="#inicio">Início</a>
+            <a href="#projetos">Estudos de caso</a>
+            <a href="#sobre">Sobre mim</a>
+            <a href="#">Artigos</a>
+          </nav>
+          <nav class="foot-col" aria-label="Redes sociais">
+            <h4>Redes</h4>
+            <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="#" target="_blank" rel="noopener">Behance</a>
+            <a href="#">E-mail</a>
+            <a href="#" target="_blank" rel="noopener">GitHub</a>
+          </nav>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // Aparece suavemente ao rolar
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    // Marca a seção atual no menu lateral
+    const links = [...document.querySelectorAll('.side-nav a')];
+    const so = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      document.body.classList.toggle('on-dark', e.target.id === 'contato');
+    }), { rootMargin: '-40% 0px -55% 0px' });
+    document.querySelectorAll('main section').forEach(s => so.observe(s));
+  </script>
+</body>
+</html>
