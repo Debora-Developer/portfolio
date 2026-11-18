@@ -71,10 +71,50 @@
     .bio-text p { font-size: 22px; line-height: 28px; letter-spacing: -0.26px; color: var(--blue); }
     .bio-text p + p { margin-top: 0; }
     .purpose { font-size: 28px; line-height: 34px; letter-spacing: .38px; text-align: center; color: var(--navy); }
-    .tools { position: relative; width: 100%; aspect-ratio: 1280 / 300; margin-top: 8px; }
-    .tools img { position: absolute; width: 9.22%; aspect-ratio: 118 / 121; border-radius: 16%; object-fit: fill; transform-origin: 0 0; transform: rotate(var(--r));
-      box-shadow: 0 6px 18px rgba(40,53,77,.12); transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
-    .tools img:hover { transform: rotate(0deg) scale(1.12); z-index: 2; }
+    
+    /* MODIFICAÇÃO: área de simulação física das ferramentas */
+    .tools {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1280 / 300;
+        min-height: 300px;
+        margin-top: 8px;
+        overflow: hidden;
+
+        /* Permite interações com mouse e toque */
+        touch-action: none;
+        user-select: none;
+    }
+
+    /* MODIFICAÇÃO: imagens passam a ser controladas pela física */
+    .tools img {
+        position: absolute;
+        width: 9.22%;
+        aspect-ratio: 118 / 121;
+        border-radius: 16%;
+        object-fit: fill;
+
+        /* A posição será calculada pelo Matter.js */
+        transform-origin: center center;
+
+        box-shadow: 0 6px 18px rgba(40,53,77,.12);
+
+        cursor: grab;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-drag: none;
+
+        /* Removemos a transição anterior para evitar conflito com a física */
+        transition: box-shadow .2s ease;
+    }
+
+    /* MODIFICAÇÃO: destaque visual durante o arraste */
+    .tools img.is-dragging {
+        cursor: grabbing;
+        z-index: 10;
+        box-shadow: 0 12px 28px rgba(40,53,77,.22);
+    }
+
 
     /* 4. Convite e rodapé */
     #contato { background: var(--navy); color: var(--paper); flex-direction: column; justify-content: space-between; align-items: stretch; padding-bottom: 80px; }
@@ -231,20 +271,322 @@
         </div>
       </footer>
     </section>
+ 
   </main>
 
+  <!-- Script original: animações e navegação -->
   <script>
+
     // Aparece suavemente ao rolar
-    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    }), { threshold: 0.15 });
+
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
     // Marca a seção atual no menu lateral
     const links = [...document.querySelectorAll('.side-nav a')];
+
     const so = new IntersectionObserver(es => es.forEach(e => {
       if (!e.isIntersecting) return;
-      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+
+      links.forEach(a => a.classList.toggle(
+        'active',
+        a.getAttribute('href') === '#' + e.target.id
+      ));
+
       document.body.classList.toggle('on-dark', e.target.id === 'contato');
+
     }), { rootMargin: '-40% 0px -55% 0px' });
+
     document.querySelectorAll('main section').forEach(s => so.observe(s));
+
   </script>
+
+  <!-- MODIFICAÇÃO: biblioteca Matter.js para simulação de física 2D -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
+
+  <!-- MODIFICAÇÃO: código da simulação física das ferramentas -->
+  <script>
+
+      // =====================================================
+      // MODIFICAÇÃO: FÍSICA INTERATIVA DAS FERRAMENTAS
+      // Biblioteca: Matter.js
+      // =====================================================
+
+      (() => {
+          const { Engine, Bodies, Body, Composite, Mouse,
+                  MouseConstraint, Events } = Matter;
+
+          const container = document.querySelector(".tools");
+
+          if (!container) return;
+
+          // Cria o motor de física
+          const engine = Engine.create();
+
+          engine.gravity.x = 0;
+          engine.gravity.y = 1.2;
+          engine.gravity.scale = 0.001;
+
+          const world = engine.world;
+
+          // Configurações da simulação
+          const settings = {
+              restitution: 0.35,  // Intensidade dos quiques
+              friction: 0.65,     // Atrito entre os objetos
+              frictionStatic: 0.8,
+              frictionAir: 0.015, // Resistência do ar
+              density: 0.002      // Peso dos ícones
+          };
+
+          const images = [...container.querySelectorAll("img")];
+
+          let iconBodies = [];
+          let walls = [];
+          let animationId = null;
+          let lastTime = 0;
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: criação das paredes físicas
+          // ---------------------------------------------
+
+          function createWalls() {
+              // Remove paredes anteriores ao redimensionar
+              walls.forEach(wall => Composite.remove(world, wall));
+
+              const width = container.clientWidth;
+              const height = container.clientHeight;
+              const thickness = 100;
+
+              walls = [
+                  // Chão
+                  Bodies.rectangle(
+                      width / 2,
+                      height + thickness / 2,
+                      width + thickness * 2,
+                      thickness,
+                      { isStatic: true }
+                  ),
+
+                  // Parede esquerda
+                  Bodies.rectangle(
+                      -thickness / 2,
+                      height / 2,
+                      thickness,
+                      height * 2,
+                      { isStatic: true }
+                  ),
+
+                  // Parede direita
+                  Bodies.rectangle(
+                      width + thickness / 2,
+                      height / 2,
+                      thickness,
+                      height * 2,
+                      { isStatic: true }
+                  ),
+
+                  // Limite superior
+                  Bodies.rectangle(
+                      width / 2,
+                      -thickness / 2,
+                      width + thickness * 2,
+                      thickness,
+                      { isStatic: true }
+                  )
+              ];
+
+              Composite.add(world, walls);
+          }
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: transforma imagens em objetos físicos
+          // ---------------------------------------------
+
+          function createIcons() {
+              const containerRect = container.getBoundingClientRect();
+
+              images.forEach((image, index) => {
+                  const rect = image.getBoundingClientRect();
+
+                  const width = rect.width;
+                  const height = rect.height;
+
+                  // Obtém a posição original da imagem
+                  const x = rect.left - containerRect.left + width / 2;
+                  const y = rect.top - containerRect.top + height / 2;
+
+                  // Cria o corpo físico
+                  const body = Bodies.rectangle(
+                      x,
+                      y,
+                      width,
+                      height,
+                      {
+                          ...settings,
+                          chamfer: { radius: 12 }
+                      }
+                  );
+
+                  // Preserva a rotação inicial definida no HTML
+                  const initialRotation = getComputedStyle(image)
+                      .getPropertyValue("--r")
+                      .trim();
+
+                  const angle = parseFloat(initialRotation) || 0;
+
+                  Body.setAngle(body, angle * Math.PI / 180);
+
+                  // Associa o corpo físico à imagem correspondente
+                  body.plugin.element = image;
+
+                  iconBodies.push(body);
+
+                  // Ajusta o ponto de referência para o centro do ícone
+                  image.style.left = `${x}px`;
+                  image.style.top = `${y}px`;
+                  image.style.transform =
+                      `translate(-50%, -50%) rotate(${body.angle}rad)`;
+              });
+
+              Composite.add(world, iconBodies);
+          }
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: interação de arrastar e soltar
+          // ---------------------------------------------
+
+          const mouse = Mouse.create(container);
+
+          const mouseConstraint = MouseConstraint.create(engine, {
+              mouse: mouse,
+              constraint: {
+                  stiffness: 0.15,
+                  damping: 0.12,
+                  render: {
+                      visible: false
+                  }
+              }
+          });
+
+          Composite.add(world, mouseConstraint);
+
+          // Identifica quando um ícone começa a ser arrastado
+          Events.on(mouseConstraint, "startdrag", event => {
+              const image = event.body.plugin.element;
+
+              if (image) {
+                  image.classList.add("is-dragging");
+              }
+          });
+
+          // Identifica quando um ícone é solto
+          Events.on(mouseConstraint, "enddrag", event => {
+              const image = event.body.plugin.element;
+
+              if (image) {
+                  image.classList.remove("is-dragging");
+              }
+          });
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: sincronização da física com HTML
+          // ---------------------------------------------
+
+          function renderIcons() {
+              iconBodies.forEach(body => {
+                  const image = body.plugin.element;
+
+                  image.style.left = `${body.position.x}px`;
+                  image.style.top = `${body.position.y}px`;
+
+                  image.style.transform =
+                      `translate(-50%, -50%) rotate(${body.angle}rad)`;
+              });
+          }
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: loop de animação da física
+          // ---------------------------------------------
+
+          function animate(time) {
+              if (!lastTime) lastTime = time;
+
+              // Evita saltos grandes quando a aba fica inativa
+              const delta = Math.min(time - lastTime, 33.333);
+
+              lastTime = time;
+
+              Engine.update(engine, delta);
+
+              renderIcons();
+
+              animationId = requestAnimationFrame(animate);
+          }
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: adaptação ao redimensionamento
+          // ---------------------------------------------
+
+          const resizeObserver = new ResizeObserver(() => {
+              if (!iconBodies.length) return;
+
+              createWalls();
+
+              const width = container.clientWidth;
+              const height = container.clientHeight;
+
+              // Mantém os objetos dentro da área após redimensionar
+              iconBodies.forEach(body => {
+                  const halfWidth = (body.bounds.max.x - body.bounds.min.x) / 2;
+                  const halfHeight = (body.bounds.max.y - body.bounds.min.y) / 2;
+
+                  const x = Math.max(
+                      halfWidth,
+                      Math.min(width - halfWidth, body.position.x)
+                  );
+
+                  const y = Math.max(
+                      halfHeight,
+                      Math.min(height - halfHeight, body.position.y)
+                  );
+
+                  Body.setPosition(body, { x, y });
+              });
+          });
+
+          // ---------------------------------------------
+          // MODIFICAÇÃO: inicialização após carregar imagens
+          // ---------------------------------------------
+
+          function initPhysics() {
+              createWalls();
+              createIcons();
+
+              resizeObserver.observe(container);
+
+              animationId = requestAnimationFrame(animate);
+          }
+
+          Promise.all(
+              images.map(image => {
+                  if (image.complete) return Promise.resolve();
+
+                  return new Promise(resolve => {
+                      image.addEventListener("load", resolve, { once: true });
+                      image.addEventListener("error", resolve, { once: true });
+                  });
+              })
+          ).then(initPhysics);
+
+      })();
+
+  </script>
+
 </body>
 </html>
+
