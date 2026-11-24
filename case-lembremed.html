@@ -1,10 +1,777 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LembreMed — um app ferramenta para acompanhar o uso dos seus medicamentos.">
   <title>LembreMed — Débora Costa</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --background: #F6F7FB;
+      --navy: #28354D;
+      --blue: #4667BC;
+      --purple: #8597D9;
+      --editor: #0C101B;
+      --editor-outline: #344D5B;
+      --editor-accent: #80E2D2;
+      --white: #F6F7FB;
+      --pink: #FC5FA3;
+      --cyan: #5DD8FF;
+      --code-purple: #D0A8FF;
+      --green: #67B7A4;
+      --comment: #99A5B5;
+      --page-width: 1536px;
+      --page-gutter: clamp(24px, 7.03vw, 108px);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--navy);
+      font-family: "Open Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .page-section {
+      width: 100%;
+      max-width: var(--page-width);
+      margin: 0 auto;
+      padding: 72px var(--page-gutter);
+    }
+    .eyebrow {
+      color: var(--blue);
+      font-size: 16.2px;
+      line-height: 1.4;
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+
+    /* HERO — composição e hierarquia do layout do Figma */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 421px);
+      gap: clamp(28px, 5vw, 76px);
+      align-items: center;
+      padding-top: 42px;
+      padding-bottom: 72px;
+    }
+    .hero-copy { min-width: 0; }
+    /* Reserva espaço para o menu fixo no topo, sem sobrepor o conteúdo do case. */
+    .hero { padding-top: 92px; }
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+      color: var(--blue);
+      font-size: 16.2px;
+      line-height: 1.55;
+      margin-bottom: 58px;
+    }
+    .breadcrumb a {
+      color: inherit;
+      text-decoration: none;
+      transition: opacity .2s ease;
+    }
+    .breadcrumb a:hover { opacity: .62; }
+    .breadcrumb a[aria-current="page"] { font-weight: 700; }
+
+    /* Navegação lateral fixa, seguindo o padrão do portfólio principal. */
+    .side-nav {
+      position: fixed;
+      top: 198px;
+      left: 62px;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+    }
+    .side-nav a {
+      display: block;
+      padding: 7px 0;
+      color: var(--purple);
+      text-decoration: none;
+      white-space: nowrap;
+      font: 600 15px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      transition: color .2s ease, opacity .2s ease;
+    }
+    .side-nav a:hover,
+    .side-nav a.active { color: var(--blue); }
+    .side-nav a:focus-visible,
+    .breadcrumb a:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* Em telas menores, a navegação lateral vira uma faixa horizontal fixa. */
+    @media (max-width: 1500px) {
+      .side-nav {
+        top: 12px;
+        left: 50%;
+        width: max-content;
+        max-width: calc(100% - 24px);
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 7px 10px;
+        border: 1px solid rgba(70, 103, 188, .14);
+        border-radius: 999px;
+        background: rgba(246, 247, 251, .94);
+        box-shadow: 0 6px 24px rgba(40, 53, 77, .10);
+        transform: translateX(-50%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .side-nav a {
+        min-width: 0;
+        padding: 8px 12px;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+      .hero { padding-top: 92px; }
+    }
+
+    @media (max-width: 700px) {
+      .side-nav {
+        width: calc(100% - 20px);
+        max-width: none;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        border-radius: 16px;
+      }
+      .side-nav::-webkit-scrollbar { display: none; }
+      .side-nav a { flex: 0 0 auto; padding: 8px 10px; font-size: 12px; }
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 14px;
+      color: var(--navy);
+      font: 800 clamp(64px, 6.57vw, 100.8px)/.923 "Bricolage Grotesque", sans-serif;
+      letter-spacing: -.045em;
+    }
+    .hero-subtitle {
+      max-width: 728px;
+      margin-bottom: 72px;
+      color: var(--blue);
+      font-size: clamp(22px, 2vw, 30.6px);
+      line-height: 1.45;
+    }
+    .metadata {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px 8px;
+      max-width: 728px;
+    }
+    .meta-column { display: flex; flex-direction: column; gap: 28px; }
+    .meta-label {
+      display: block;
+      margin-bottom: 11.7px;
+      color: var(--blue);
+      font-size: 15.3px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .meta-value {
+      margin: 0;
+      color: var(--navy);
+      font-size: 22.5px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .phone-stage {
+      position: relative;
+      width: 100%;
+      max-width: 421px;
+      aspect-ratio: 421.2 / 814.5;
+      justify-self: end;
+      overflow: hidden;
+    }
+    .phone-screen {
+      position: absolute;
+      width: 86.3%;
+      height: 96.7%;
+      left: 6.85%;
+      top: 1.45%;
+      object-fit: cover;
+      border-radius: 7.2%;
+    }
+    .phone-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* SOBRE */
+    .about { padding-top: 72px; padding-bottom: 72px; }
+    .section-heading {
+      margin: 0 0 26px;
+      color: var(--navy);
+      font: 600 clamp(36px, 3.52vw, 54px)/1.12 "Bricolage Grotesque", sans-serif;
+      letter-spacing: -.025em;
+    }
+    .body-large {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(18px, 1.58vw, 24.3px);
+      line-height: 1.4;
+    }
+    .subheading {
+      margin: 28px 0 26px;
+      color: var(--blue);
+      font-size: clamp(23px, 2vw, 30.6px);
+      line-height: 1.45;
+      font-weight: 600;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(10px, 1.1vw, 18px);
+      align-items: stretch;
+    }
+    .step {
+      min-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--purple);
+      border-radius: 32px;
+      background: var(--blue);
+      color: var(--white);
+    }
+    .step-number {
+      flex: 0 0 auto;
+      font: 600 clamp(36px, 4.03vw, 61.85px)/1.12 "Bricolage Grotesque", sans-serif;
+      letter-spacing: -.04em;
+    }
+    .step-label {
+      font-size: clamp(13px, 1.47vw, 22.5px);
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    /* IA — texto à esquerda e editor à direita, como no PDF */
+    .ai-section { padding-top: 72px; padding-bottom: 72px; }
+    .ai-content { display: flex; flex-direction: column; gap: 68px; }
+    .split-row {
+      display: grid;
+      grid-template-columns: minmax(280px, .77fr) minmax(0, 1fr);
+      gap: clamp(32px, 3vw, 46px);
+      align-items: center;
+    }
+    .split-copy h3 {
+      margin-bottom: 17px;
+      color: var(--navy);
+      font: 600 32.4px/1.4 "Bricolage Grotesque", sans-serif;
+    }
+    .split-copy p {
+      max-width: 594px;
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(18px, 1.58vw, 24.3px);
+      line-height: 1.4;
+    }
+    .editor {
+      min-width: 0;
+      overflow: hidden;
+      padding: 27px 29px 30px;
+      border: 1px solid var(--editor-outline);
+      border-radius: 20px;
+      background: var(--editor);
+      box-shadow: 0 0 0 5px rgba(36,57,70,.65), 0 0 0 10px rgba(26,45,57,.4), 0 0 0 15px rgba(20,37,48,.23);
+      color: var(--white);
+    }
+    .editor-title {
+      margin: 0 0 22px;
+      padding: 0 0 18px;
+      border-bottom: 1px solid rgba(52,77,91,.8);
+      color: var(--editor-accent);
+      font: 400 15.3px/1.5 "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      letter-spacing: 1.08px;
+    }
+    .code-lines {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 0 18px;
+      font: 400 15px/1.72 "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+    .line-numbers {
+      color: #748295;
+      text-align: right;
+      user-select: none;
+      white-space: pre-line;
+    }
+    .code-lines pre {
+      margin: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      color: var(--white);
+      font: inherit;
+    }
+    .mint { color: var(--editor-accent); }
+    .lavender { color: var(--purple); }
+    .pink { color: var(--pink); }
+    .cyan { color: var(--cyan); }
+    .purple { color: var(--code-purple); }
+    .green { color: var(--green); }
+    .comment { color: var(--comment); }
+
+    /* RESULTADOS */
+    .results { padding-top: 72px; padding-bottom: 72px; }
+    .results-layout {
+      display: grid;
+      grid-template-columns: minmax(230px, 356px) minmax(0, 1fr);
+      gap: clamp(42px, 6vw, 90px);
+      align-items: center;
+      margin-top: 28px;
+    }
+    .video-placeholder {
+      width: 100%;
+      aspect-ratio: 356.4 / 690.3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      border: 1px solid var(--purple);
+      border-radius: 20px;
+      background: var(--blue);
+      color: var(--white);
+      text-align: center;
+      font: 500 26.1px/1.4 "Bricolage Grotesque", sans-serif;
+    }
+    .results-copy { display: flex; flex-direction: column; gap: 30px; }
+    .result-block h3 {
+      margin: 0 0 2px;
+      color: var(--navy);
+      font: 600 32.4px/1.4 "Bricolage Grotesque", sans-serif;
+    }
+    .result-block p {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(18px, 1.64vw, 25.2px);
+      line-height: 1.4;
+    }
+    .stack-title {
+      margin: 0 0 7px;
+      font: 600 32.4px/1.4 "Bricolage Grotesque", sans-serif;
+    }
+    .stack-list {
+      margin: 0 0 14px;
+      color: var(--navy);
+      font-size: 19.8px;
+      line-height: 1.5;
+    }
+    .github-link {
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 14px;
+      border: 1px solid var(--navy);
+      border-radius: 18px;
+      color: var(--navy);
+      text-decoration: none;
+      font: 500 14.4px/1.3 Inter, sans-serif;
+      transition: background .2s, color .2s;
+    }
+    .github-link:hover { background: var(--navy); color: var(--white); }
+
+    /* PRÓXIMOS PASSOS */
+    .next-steps { padding-top: 72px; padding-bottom: 90px; }
+    .next-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px 36px;
+      margin-top: 34px;
+    }
+    .next-column { display: flex; flex-direction: column; gap: 68px; }
+    .next-item {
+      display: grid;
+      grid-template-columns: 63px minmax(0, 1fr);
+      gap: 13.5px;
+      align-items: start;
+    }
+    .next-number {
+      color: var(--blue);
+      font-size: 18px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .next-item h3 {
+      margin: 0 0 12px;
+      color: var(--navy);
+      font: 600 26.1px/1.4 "Bricolage Grotesque", sans-serif;
+    }
+    .next-item p {
+      margin: 0;
+      color: var(--navy);
+      font-size: 22.5px;
+      line-height: 1.4;
+    }
+
+    /* FOOTER */
+    footer {
+      width: 100%;
+      background: var(--navy);
+      color: var(--white);
+    }
+    .footer-inner {
+      max-width: var(--page-width);
+      margin: 0 auto;
+      padding: 72px var(--page-gutter);
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) auto;
+      gap: clamp(50px, 8vw, 128px);
+      align-items: end;
+    }
+    .footer-quote { max-width: 545px; }
+    .footer-year, .footer-verse {
+      margin: 0;
+      font: 400 15.3px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .footer-year { margin-bottom: 4px; font-weight: 600; }
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(130px, 1fr));
+      gap: 40px;
+    }
+    .footer-group { display: flex; flex-direction: column; align-items: flex-start; }
+    .footer-group strong {
+      margin: 0 0 9px;
+      font: 600 18px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .footer-group a {
+      padding: 4px 0;
+      color: var(--white);
+      text-decoration: none;
+      font: 400 15.3px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    }
+    .footer-group a:hover { text-decoration: underline; }
+
+    @media (max-width: 1000px) {
+      .hero { grid-template-columns: minmax(0, 1fr) minmax(240px, 34%); }
+      .steps { grid-template-columns: repeat(3, 1fr); }
+      .split-row { grid-template-columns: minmax(220px, .7fr) minmax(0, 1fr); }
+      .next-item { grid-template-columns: 42px minmax(0, 1fr); }
+      .next-item p { font-size: 18px; }
+    }
+    @media (max-width: 700px) {
+      .page-section { padding: 44px 24px; }
+      .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 42px;
+        padding-top: 28px;
+      }
+      .breadcrumb { margin-bottom: 34px; font-size: 12px; }
+      /* O menu já é fixo; o hero recebe espaço para não ficar sob a navegação. */
+      .hero { padding-top: 92px; }
+      h1 { font-size: clamp(54px, 15vw, 76px); line-height: .95; }
+      .hero-subtitle { margin-bottom: 38px; font-size: 21px; }
+      .metadata { gap: 26px 16px; }
+      .meta-column { gap: 24px; }
+      .meta-value { font-size: 17px; }
+      .meta-label { font-size: 12px; margin-bottom: 7px; }
+      .phone-stage { width: min(82%, 330px); align-self: center; }
+      .section-heading { font-size: 36px; }
+      .body-large { font-size: 17px; line-height: 1.55; }
+      .subheading { margin: 25px 0 20px; font-size: 23px; }
+      .steps { grid-template-columns: 1fr; gap: 12px; }
+      .step { min-height: 72px; justify-content: flex-start; padding: 8px 22px; }
+      .step-number { font-size: 46px; }
+      .step-label { max-width: 180px; font-size: 17px; }
+      .ai-content { gap: 54px; }
+      .split-row { grid-template-columns: 1fr; gap: 24px; }
+      .split-copy h3, .result-block h3, .stack-title { font-size: 27px; }
+      .split-copy p { font-size: 17px; line-height: 1.55; }
+      .editor { padding: 20px 16px; border-radius: 14px; }
+      .editor-title { font-size: 12px; }
+      .code-lines { grid-template-columns: 20px minmax(0, 1fr); gap: 0 10px; font-size: 11px; line-height: 1.65; }
+      .results-layout { grid-template-columns: 1fr; gap: 38px; }
+      .video-placeholder { width: min(70%, 270px); justify-self: center; aspect-ratio:  .516; margin: 0 auto; font-size: 22px; }
+      .results-copy { gap: 26px; }
+      .result-block p { font-size: 17px; line-height: 1.55; }
+      .stack-list { font-size: 16px; }
+      .next-grid { grid-template-columns: 1fr; gap: 34px; }
+      .next-column { gap: 34px; }
+      .next-item { grid-template-columns: 38px minmax(0, 1fr); gap: 8px; }
+      .next-item h3 { font-size: 22px; }
+      .next-item p { font-size: 16px; line-height: 1.5; }
+      .footer-inner { padding: 44px 24px; grid-template-columns: 1fr; gap: 38px; align-items: start; }
+      .footer-links { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+      .footer-group strong { font-size: 15px; }
+      .footer-group a { font-size: 12px; }
+      .footer-year, .footer-verse { font-size: 13px; }
+    }
+    @media (max-width: 390px) {
+      .footer-links { grid-template-columns: 1fr 1fr; }
+      .metadata { grid-template-columns: 1fr 1fr; }
+      .code-lines { font-size: 10px; }
+    }
+  </style>
 </head>
+
 <body>
+  <!-- Menu persistente: os links apontam para as seções desta página. -->
+  <nav class="side-nav" aria-label="Navegação da página">
+    <a href="#inicio" class="active">Início</a>
+    <a href="#sobre">Sobre o projeto</a>
+    <a href="#ia">Onde a IA entra</a>
+    <a href="#resultados">Resultados</a>
+    <a href="#proximos-passos">Próximos passos</a>
+  </nav>
+
+  <main>
+    <section class="page-section hero" id="inicio">
+      <div class="hero-copy">
+        <nav class="breadcrumb" aria-label="Caminho de navegação">
+          <a href="index.html#inicio">PORTFÓLIO</a>
+          <span aria-hidden="true">/</span>
+          <a href="index.html#inicio">PROJETOS</a>
+          <span aria-hidden="true">/</span>
+          <a href="#inicio" aria-current="page">LEMBREMED</a>
+        </nav>
+
+        <h1>LembreMed</h1>
+        <p class="hero-subtitle">Um app ferramenta para acompanhar o uso dos seus medicamentos.</p>
+
+        <div class="metadata">
+          <div class="meta-column">
+            <div>
+              <span class="meta-label">AUTORIA</span>
+              <p class="meta-value">Débora Costa</p>
+            </div>
+            <div>
+              <span class="meta-label">PERÍODO</span>
+              <p class="meta-value">Outubro de 2025</p>
+            </div>
+          </div>
+          <div>
+            <span class="meta-label">MEU PAPEL</span>
+            <p class="meta-value">Product Designer,<br>Developer,<br>AI Builder.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coloque os dois assets na mesma pasta deste HTML.
+           A captura fica atrás e a moldura transparente do iPhone fica por cima. -->
+      <div class="phone-stage" aria-label="Prévia do aplicativo LembreMed em um iPhone">
+        <img class="phone-screen" src="onboarding-lembremed.png" alt="Tela inicial do aplicativo LembreMed">
+        <img class="phone-frame" src="iphone-17-black.png" alt="">
+      </div>
+    </section>
+
+    <section class="page-section about" id="sobre">
+      <div class="eyebrow">SOBRE O PROJETO</div>
+      <h2 class="section-heading">Transformando cuidado em tranquilidade</h2>
+      <p class="body-large">Minha mãe já tomava vários medicamentos diariamente. Quando adoeceu precisou iniciar novos tratamentos. De repente, eram muitos remédios em horários diferentes e a rotina estava desorganizada. É fácil de se confundir e um erro prejudica todo o tratamento. Assim nasceu o LembreMed, um aplicativo simples e intuitivo para ajudar a manter os cuidados do dia a dia.</p>
+
+      <h3 class="subheading">Como funciona?</h3>
+      <div class="steps">
+        <div class="step"><span class="step-number">01</span><span class="step-label">Fotografa<br>a receita</span></div>
+        <div class="step"><span class="step-number">02</span><span class="step-label">Lê com<br>Gemini</span></div>
+        <div class="step"><span class="step-number">03</span><span class="step-label">Confere as<br>Informações</span></div>
+        <div class="step"><span class="step-number">04</span><span class="step-label">Define os<br>Lembretes</span></div>
+        <div class="step"><span class="step-number">05</span><span class="step-label">Acompanha<br>o calendário</span></div>
+      </div>
+    </section>
+
+    <section class="page-section ai-section" id="ia">
+      <div class="eyebrow">ONDE A IA ENTRA</div>
+      <div class="ai-content">
+        <div class="split-row">
+          <div class="split-copy">
+            <h3>Prompt engineering aplicado</h3>
+            <p>O app conversa com o Gemini 2.5 Flash pelo SDK Firebase AI, direto do iPhone, sem servidor próprio. O prompt pede nome, dosagem e instrução, impõe uma linha por medicamento e traz dois exemplos para tornar a resposta previsível.</p>
+          </div>
+
+          <div class="editor">
+            <div class="editor-title">PROMPT DE EXTRAÇÃO</div>
+            <div class="code-lines">
+              <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div>
+              <pre>Extraia da imagem da receita médica os nomes dos medicamentos,
+suas dosagens e as instruções.
+Formate <span class="mint">CADA</span> medicamento estritamente da seguinte forma,
+com cada um em uma nova linha:
+<span class="mint">Nome do Medicamento (Dosagem): Instrução de uso</span>
+
+Exemplo:
+<span class="lavender">Amoxicilina (500mg)</span>: Tomar 1 cápsula a cada 8 horas.
+<span class="lavender">Dipirona (1g)</span>: Tomar 1 comprimido se houver dor.</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="split-row">
+          <div class="split-copy">
+            <h3>No processo de aprendizado</h3>
+            <p>Usei o Gemini dentro do Xcode, ele lia e comentava as linhas de código para explicar o que estava acontecendo. Usei isso como método de estudo para aprender SwiftUI mais rápido. Minha leitura de código melhorou. A IA acelerou meu processo de aprendizado e economizei horas de estudo.</p>
+          </div>
+
+          <div class="editor">
+            <div class="editor-title">EXEMPLO DE COMO USO IA NA LEITURA DE CÓDIGO</div>
+            <div class="code-lines">
+              <div class="line-numbers">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div>
+              <pre><span class="pink">import</span> <span class="cyan">SwiftUI</span>
+
+<span class="pink">struct</span> <span class="cyan">ReminderSetupView</span>: <span class="green">View</span> {
+    <span class="pink">var</span> prescription: <span class="green">PrescriptionModel</span>
+    <span class="pink">var</span> onFlowComplete: () -&gt; <span class="green">Void</span> <span class="comment">// Recebe o callback final</span>
+
+    <span class="comment">// Isso diz: "Eu espero receber um ReminderRepository do ambiente."</span>
+    <span class="pink">@EnvironmentObject var</span> reminderRepo: <span class="green">ReminderRepository</span>
+
+    <span class="comment">// O dismiss fecha esta tela e volta para a PrescriptionView.</span>
+    <span class="comment">// O onFlowComplete fecha todo o fluxo modal.</span>
+    <span class="pink">@Environment(\.dismiss) var</span> dismiss
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section results" id="resultados">
+      <div class="eyebrow">05 / RESULTADOS</div>
+      <div class="results-layout">
+        <!-- Substitua este bloco pelo vídeo quando tiver o arquivo final. -->
+        <div class="video-placeholder">Vídeo do app<br>funcionando</div>
+
+        <div class="results-copy">
+          <div class="result-block">
+            <h3>Do zero em 7 dias</h3>
+            <p>O LembreMed saiu do zero em uma semana. Na semana do projeto anterior, entreguei no mesmo período de tempo um aplicativo apenas com a interface no Figma, sem código e sem integrações externas. No mesmo prazo, usando IA como apoio no código e nos prompts, entreguei um app com câmera nativa e leitura de receitas por modelo de linguagem.</p>
+          </div>
+          <div class="result-block">
+            <h3>5 de 5 receitas lidas entre 8 a 10 segundos</h3>
+            <p>Nos testes, o app leu corretamente as 5 receitas, entre 8 a 10 segundos da foto até o resultado na tela. Funciona melhor com receitas digitadas do que manuscritas. Também testei imagens sem receita legível: o modelo explicou o que via em vez de inventar medicamentos.</p>
+          </div>
+          <div>
+            <h3 class="stack-title">Stack</h3>
+            <p class="stack-list">Swift · SwiftUI · Câmera nativa do iPhone · Firebase AI (SDK) · Gemini 2.5 Flash · Combine · AVFoundation · UserDefaults</p>
+            <!-- Abre o repositório do LembreMed no GitHub em uma nova aba. -->
+            <a class="github-link" href="https://github.com/Debora-Developer/Nano4" target="_blank" rel="noopener noreferrer">Repositório no GitHub&nbsp; ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section next-steps" id="proximos-passos">
+      <div class="eyebrow">06 / PRÓXIMOS PASSOS</div>
+      <div class="next-grid">
+        <div class="next-column">
+          <article class="next-item">
+            <div class="next-number">01</div>
+            <div>
+              <h3>Automatizar os lembretes</h3>
+              <p>Usar frequência e duração lidas da receita — como “a cada 12h por 5 dias” — para preencher os lembretes. Hoje, datas e horários são definidos manualmente.</p>
+            </div>
+          </article>
+          <article class="next-item">
+            <div class="next-number">03</div>
+            <div>
+              <h3>Validar receitas manuscritas</h3>
+              <p>Ampliar os testes para entender e validar a leitura de receitas escritas à mão.</p>
+            </div>
+          </article>
+        </div>
+        <div class="next-column">
+          <article class="next-item">
+            <div class="next-number">02</div>
+            <div>
+              <h3>Fazer teste de usabilidade</h3>
+              <p>Colocar na mão do usuário para procurar possíveis “bugs” e espaços de refinamento do aplicativo.</p>
+            </div>
+          </article>
+          <article class="next-item">
+            <div class="next-number">04</div>
+            <div>
+              <h3>Reforçar a proteção de dados</h3>
+              <p>Reforçar a proteção dos dados de saúde, já que a imagem da receita é enviada ao Gemini.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-quote">
+        <p class="footer-year">2026 Débora Costa</p>
+        <p class="footer-verse">“Tudo o que fizerem, façam de todo o coração, como para o Senhor, e não para os homens, sabendo que receberão do Senhor a recompensa da herança, pois é a Cristo, o Senhor, a quem vocês servem.” Colossenses 3:23-24</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-group">
+          <strong>Navegação</strong>
+          <a href="#inicio">Início</a>
+          <a href="#sobre">Sobre o projeto</a>
+          <a href="#ia">Onde a IA entra</a>
+          <a href="#resultados">Resultados</a>
+          <a href="#proximos-passos">Próximos passos</a>
+        </div>
+        <div class="footer-group">
+          <strong>Portfólio</strong>
+          <a href="https://deboradesigner.com/#inicio">Início</a>
+          <a href="https://deboradesigner.com/case-lembremed" aria-current="page">LembreMed</a>
+          <a href="https://deboradesigner.com/case-outa">Outa</a>
+        </div>
+        <div class="footer-group">
+          <strong>Redes</strong>
+          <a href="https://www.linkedin.com/in/deboracostadesigner" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://www.behance.net/deboracostadesigner" target="_blank" rel="noopener noreferrer">Behance</a>
+          <a href="mailto:deboracosta.designer@gmail.com">Email</a>
+          <a href="https://github.com/Debora-Developer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // Observa as seções e destaca no menu aquela que está mais próxima do centro da tela.
+    // Assim, o item ativo acompanha a leitura sem exigir cliques no menu.
+    const pageSections = document.querySelectorAll("main section[id]");
+    const menuLinks = document.querySelectorAll(".side-nav a");
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        menuLinks.forEach((link) => {
+          const isCurrent = link.getAttribute("href") === `#${entry.target.id}`;
+          link.classList.toggle("active", isCurrent);
+
+          // Informa leitores de tela sobre a seção atualmente selecionada.
+          if (isCurrent) {
+            link.setAttribute("aria-current", "location");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      });
+    }, {
+      // Define uma faixa central da tela para evitar alternância rápida entre seções.
+      rootMargin: "-42% 0px -48% 0px",
+      threshold: 0
+    });
+
+    pageSections.forEach((section) => sectionObserver.observe(section));
+  </script>
 </body>
 </html>
